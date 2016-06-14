@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
-import { Motion, spring } from 'react-motion'
+import { Motion, spring, presets } from 'react-motion'
 
 import range from 'lodash.range'
 
@@ -17,6 +17,8 @@ const NUM_CHILDREN = 5;
 // Hard coded position values of the mainButton
 const M_X = 200;
 const M_Y = 300;
+
+const SPRING_CONFIG = {stiffness: 400, damping: 15};
 
 // How far away from the main button does the child buttons go
 const FLY_OUT_RADIUS = 120,
@@ -66,8 +68,8 @@ class App extends React.Component {
     return {
       width: CHILD_BUTTON_DIAM,
       height: CHILD_BUTTON_DIAM,
-      top: M_Y - (CHILD_BUTTON_DIAM/2),
-      left: M_X - (CHILD_BUTTON_DIAM/2)
+      top: spring(M_Y - (CHILD_BUTTON_DIAM/2), presets.stiff),
+      left: spring(M_X - (CHILD_BUTTON_DIAM/2), presets.stiff)
     };
   }
 
@@ -76,8 +78,8 @@ class App extends React.Component {
     return {
       width: CHILD_BUTTON_DIAM,
       height: CHILD_BUTTON_DIAM,
-      left: M_X + deltaX,
-      top: M_Y - deltaY
+      left: spring(M_X + deltaX, presets.stiff),
+      top: spring(M_Y - deltaY, presets.stiff)
     };
   }
 
@@ -95,10 +97,14 @@ class App extends React.Component {
         {range(NUM_CHILDREN).map( index => {
           let style = isOpen ? this.finalChildButtonStyles(index) : this.initialChildButtonStyles();
           return (
-            <div  
-              key={index}
-              className='child-button'
-              style={style}></div>
+            <Motion style={ style } key={ index }>
+            { ({width, height, top, left}) =>
+              <div  
+                className='child-button'
+                style={{width: width, height: height, top: top, left: left} }
+                />
+            }
+            </Motion>
           )
         })}
         <div 
